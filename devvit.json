@@ -1,0 +1,36 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "github-meta",
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/on-app-install",
+    "onPostCreate": "/internal/triggers/post-create",
+    "onCommentSubmit": "/internal/triggers/comment-create"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch"
+  },
+  "permissions": {
+    "http": {
+      "enable": true,
+      "domains": ["api.github.com"]
+    },
+    "reddit": true
+  },
+  "dev": {
+    "subreddit": "github_meta_dev"
+  },
+  "settings": {
+    "global": {
+      "pat": {
+        "type": "string",
+        "label": "github pat",
+        "isSecret": true
+      }
+    }
+  }
+}
