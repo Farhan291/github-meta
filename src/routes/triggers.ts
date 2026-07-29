@@ -30,14 +30,13 @@ triggers.post('/post-create', async (c) => {
   if (!post) {
     return c.json<TriggerResponse>({ status: 'success' }, 200);
   }
-  const ownerRepo =
-    extractGithubUrl(post.url) ?? extractGithubUrl(post.selftext);
+  const repoRef = extractGithubUrl(post.url) ?? extractGithubUrl(post.selftext);
 
-  if (!ownerRepo) {
+  if (!repoRef) {
     return c.json<TriggerResponse>({ status: 'success' }, 200);
   }
   try {
-    const meta = await fetchMeta(ownerRepo);
+    const meta = await fetchMeta(repoRef);
     const commentText = formatRepo(meta);
 
     await reddit.submitComment({
@@ -45,9 +44,14 @@ triggers.post('/post-create', async (c) => {
       text: commentText,
       runAs: 'APP',
     });
-    console.log(`Replied with GitHub meta for ${ownerRepo} on post ${post.id}`);
+    console.log(
+      `Replied with GitHub meta for ${repoRef.ownerRepo} on post ${post.id}`
+    );
   } catch (err) {
-    console.error(`Failed to fetch/post GitHub meta for ${ownerRepo}:`, err);
+    console.error(
+      `Failed to fetch/post GitHub meta for ${repoRef.ownerRepo}:`,
+      err
+    );
   }
   return c.json<TriggerResponse>({ status: 'success' }, 200);
 });
@@ -62,12 +66,12 @@ triggers.post('/comment-create', async (c) => {
   if (comment.body?.includes(BOT_MARKER)) {
     return c.json<TriggerResponse>({ status: 'success' }, 200);
   }
-  const ownerRepo = extractGithubUrl(comment.body);
-  if (!ownerRepo) {
+  const repoRef = extractGithubUrl(comment.body);
+  if (!repoRef) {
     return c.json<TriggerResponse>({ status: 'ok' });
   }
   try {
-    const meta = await fetchMeta(ownerRepo);
+    const meta = await fetchMeta(repoRef);
     const commentText = formatRepo(meta);
 
     await reddit.submitComment({
@@ -76,10 +80,13 @@ triggers.post('/comment-create', async (c) => {
       runAs: 'APP',
     });
     console.log(
-      `Replied with GitHub meta for ${ownerRepo} on comment ${comment.id}`
+      `Replied with GitHub meta for ${repoRef.ownerRepo} on comment ${comment.id}`
     );
   } catch (err) {
-    console.error(`Failed to fetch/post GitHub meta for ${ownerRepo}:`, err);
+    console.error(
+      `Failed to fetch/post GitHub meta for ${repoRef.ownerRepo}:`,
+      err
+    );
   }
   return c.json<TriggerResponse>({ status: 'ok' });
 });

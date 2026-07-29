@@ -17,7 +17,7 @@
   "permissions": {
     "http": {
       "enable": true,
-      "domains": ["api.github.com"]
+      "domains": ["api.github.com", "codeberg.org"]
     },
     "reddit": true
   },
